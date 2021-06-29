@@ -34,10 +34,12 @@ namespace Upico
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors(options => {
+            services.AddCors(options =>
+            {
 
                 options.AddPolicy(name: _myAllowSpecificOrigins,
-                    builder => {
+                    builder =>
+                    {
                         builder.WithOrigins("http://localhost:5000", "http://localhost:3000")
                             .AllowAnyOrigin()
                             .AllowAnyMethod()
@@ -57,7 +59,8 @@ namespace Upico
             services.Configure<MailSettings>(Configuration.GetSection("MailSettings"));
 
             //For identity.entityframworkcore.
-            services.AddDbContext<UpicODbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("default")));
+            services.AddDbContext<UpicODbContext>(options =>
+                options.UseNpgsql(Configuration.GetConnectionString("default")));
 
             services.AddIdentity<AppUser, IdentityRole>(opt =>
             {
@@ -148,7 +151,8 @@ namespace Upico
             */
 
 
-            services.AddAuthentication(opt => {
+            services.AddAuthentication(opt =>
+            {
                 opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
@@ -162,7 +166,7 @@ namespace Upico
                         ValidateAudience = false
                     };
                 });
-            
+
             /*
             services.AddAuthentication(options =>
             {
@@ -199,9 +203,11 @@ namespace Upico
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Upico v1"));
             }
-            
+
             app.UseCors(_myAllowSpecificOrigins);
 
+            // look for html.index in wwwroot folder
+            app.UseDefaultFiles();
             app.UseStaticFiles();
 
             app.UseAuthentication();
@@ -213,6 +219,7 @@ namespace Upico
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapFallbackToController("Index", "Fallback");
             });
         }
     }
